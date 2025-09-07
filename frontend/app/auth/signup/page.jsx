@@ -1,38 +1,69 @@
 "use client"
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 function page() {
     const [email, setEmail] = useState('');
+    const [fullName, setFullName] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
-    const router = useRouter()
+    const router = useRouter();
+
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
 
         if (password !== confirmPassword) {
-            setError("Passwords do not match. Please try again.");
-            return; // Stop the execution if they don't match
+            setError("Passwords do not match.");
+            return;
         }
 
-        try{
-            await createUserWithEmailAndPassword(auth,email,password);
-            router.push('/homepage');
-        }catch(err){
-            let friendlyError = "Failed to sign up, please try again"
-            if(err.code === "auth/email-alredy-in-use"){
-                friendlyError = "This email address is already in use"
-            }else if(err.code === "auth/weak-password"){
-                friendlyError = "Password is too weak."
+        try {
+            const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredentials.user;
+            const token = await user.getIdToken();
+
+            // --- THIS IS THE CRUCIAL DEBUGGING STEP ---
+            console.log("Generated Firebase ID Token:", token);
+            // ---------------------------------------------
+
+            if (!token) {
+                throw new Error("Could not generate authentication token. Please try again.");
             }
-            setError(friendlyError);
-            console.error("Firebase sign-up error: ",err.message);
+
+            const response = await fetch('http://localhost:4000/api/users/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    email: user.email,
+                    displayName: fullName,
+                    photoURL: "default_avatar_url.png"
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Request failed with status ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('User profile created in MongoDB:', data);
+            router.push('/homepage');
+
+        } catch (err) {
+            setError(err.message);
+            console.error("Signup error: ", err);
         }
-    }
+    };
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-sky-100 font-sans">
@@ -45,11 +76,21 @@ function page() {
                     <div className="relative">
                         <input
                             className="w-full px-4 py-3 text-gray-700 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                            type="text"
-                            placeholder="Username"
+                            type="email" // Use type="email" for email fields
+                            placeholder="Email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                        // autoComplete="username"
+                            required
+                        />
+                    </div>
+                    <div className="relative">
+                        <input
+                            className="w-full px-4 py-3 text-gray-700 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                            type="text"
+                            placeholder="Full Name"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            required
                         />
                     </div>
                     <div className="relative">
@@ -59,7 +100,7 @@ function page() {
                             placeholder="Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                        // autoComplete="new-password"
+                            required
                         />
                     </div>
                     <div className="relative">
@@ -69,7 +110,7 @@ function page() {
                             placeholder="Confirm Password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            autoComplete="new-password"
+                            required
                         />
                     </div>
                     {error && <p className="text-sm text-red-500 text-center">{error}</p>}
@@ -83,11 +124,15 @@ function page() {
                     </div>
                 </form>
                 <p className="text-xs text-center text-gray-400">
-                    Already have an account? <a href='./login' className="font-semibold text-indigo-500 hover:underline focus:outline-none">Log in</a>
+                    Already have an account?{' '}
+                    {/* Use the Link component for better navigation */}
+                    <Link href='./login' className="font-semibold text-indigo-500 hover:underline focus:outline-none">
+                        Log in
+                    </Link>
                 </p>
             </div>
         </div>
     );
 }
 
-export default page
+export default page;

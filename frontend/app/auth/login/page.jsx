@@ -3,15 +3,14 @@ import React, { useState } from 'react'
 import { auth } from "@/lib/firebase/config";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from '@/lib/redux/slices/userSlice';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 
 function page() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const dispatch = useDispatch();
     const router = useRouter();
 
 
@@ -45,7 +44,7 @@ function page() {
                         <input
                             className="w-full px-4 py-3 text-gray-700 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                             type="email"
-                            placeholder="Username"
+                            placeholder="Email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
@@ -70,7 +69,7 @@ function page() {
                     </div>
                 </form>
                 <p className="text-xs text-center text-gray-400">
-                    Don't have an account? <a href="./signup" className="text-indigo-500 hover:underline">Sign up</a>
+                    Don't have an account? <Link href="./signup" className="text-indigo-500 hover:underline">Sign up</Link>
                 </p>
             </div>
         </div>
