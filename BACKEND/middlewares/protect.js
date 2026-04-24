@@ -11,10 +11,10 @@ const protect = async (req,res,next) => {
         if(!decoded){
             return res.status(401).json({error:"Unauthorized: Invalid Token"});
         }
-        const user = await User.findById(decoded.userId).select("-pass_hash");
+        const user = await User.findById(decoded.userId).lean();
 
         if(!user){
-            return res.status(404).json({error:"user not found"});
+            return res.status(404).json({error:"protect error: user not found"});
         }
         req.user = user;
         next();

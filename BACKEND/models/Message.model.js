@@ -19,7 +19,7 @@ const MessageSchema = new Schema({
     message_type: {
         type: String,
         enum: ["text","image","video","doc","audio","link"],
-        default: "Text",
+        default: "text",
     },
     file_url: {
         type: String,
@@ -30,10 +30,12 @@ const MessageSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ["Pending","Delivered","Seen"],
-        default: "Pending",
+        enum: ["pending","delivered","seen"],
+        default: "pending",
     },
 },{timestamps:true}) 
+
+MessageSchema.index({conversation_id:1,createdAt:1});
 
 const Message = mongoose.model('Message',MessageSchema);
 

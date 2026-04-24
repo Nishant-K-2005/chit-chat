@@ -9,6 +9,7 @@ import {
   AtSign
 } from 'lucide-react';
 import useUserStore from '@/store/useUserStore.js';
+import Link from 'next/link';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -68,9 +69,9 @@ const Login = () => {
                 <label className="block text-sm font-semibold text-slate-700">
                   Password
                 </label>
-                <a href="#" className="text-xs font-semibold text-indigo-600 hover:text-indigo-500">
+                <Link href="#" className="text-xs font-semibold text-indigo-600 hover:text-indigo-500">
                   Forgot?
-                </a>
+                </Link>
               </div>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -108,9 +109,9 @@ const Login = () => {
         {/* Link back to Signup */}
         <p className="mt-10 text-center text-sm text-slate-500">
           Don't have an account?{' '}
-          <a href="/auth/signup" className="font-bold text-indigo-600 hover:text-indigo-500 transition-colors">
+          <Link href="/auth/signup" className="font-bold text-indigo-600 hover:text-indigo-500 transition-colors">
             Create one
-          </a>
+          </Link>
         </p>
       </div>
     </div>

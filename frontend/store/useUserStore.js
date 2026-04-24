@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import useSocketStore from "./useSocketStore";
 
 const useUserStore = create((set,get)=>({
     user: null,
@@ -12,14 +13,15 @@ const useUserStore = create((set,get)=>({
             const res = await fetch('http://localhost:5000/api/auth/session',{
                 credentials:'include',
             });
-            if(res.status==200){
-                const data = await res.json();
+            const data = await res.json();
+            if(res.ok){
                 set({
-                    user:data.user,
+                    user:data,
                     error:null,
                     isAuthenticated:true,
                     isLoading:false,
                 });
+                useSocketStore.getState().connectSocket(data._id)
             }else{
                 set({
                     user:null,
@@ -29,6 +31,7 @@ const useUserStore = create((set,get)=>({
                 });
             }
         }catch(err){
+            console.log(err)
             set({
                 user:null,
                 error:err.message,
@@ -50,23 +53,25 @@ const useUserStore = create((set,get)=>({
                 headers:{
                     'Content-Type':'application/json',
                 },
-                credentials:'include',
+                credentials: "include",
                 body:JSON.stringify(userData)
             });
             const data = await res.json();
             if(res.ok){
+                console.log(data)
                 set({
                     user: data,
                     error:null,
-                    isLoading:false,
                     isAuthenticated:true,
+                    isLoading:false,
                 })
+                useSocketStore.getState().connectSocket(data._id)
             }else{
                 set({
                     user:null,
                     error:data.error,
-                    isLoading: false,
                     isAuthenticated:false,
+                    isLoading: false,
                 })
             }
         }catch(err){
@@ -74,8 +79,8 @@ const useUserStore = create((set,get)=>({
             set({
                 user: null,
                 error:err.message,
-                isLoading:false,
                 isAuthenticated:false,
+                isLoading:false,
             })
         }
     },
@@ -104,6 +109,7 @@ const useUserStore = create((set,get)=>({
                     isLoading:false,
                     isAuthenticated:true,
                 })
+                useSocketStore.getState().connectSocket(data._id)
             }else{
                 set({
                     user: null,

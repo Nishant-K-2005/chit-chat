@@ -11,6 +11,7 @@ const userSchema = new Schema({
     pass_hash: {
         type: String,
         required: true,
+        select: false,
     },
     display_name: {
         type: String,

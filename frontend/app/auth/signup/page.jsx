@@ -10,6 +10,7 @@ import {
   AtSign
 } from 'lucide-react';
 import useUserStore from '@/store/useUserStore.js';
+import Link from 'next/link';
 
 const page = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -120,9 +121,9 @@ const page = () => {
         {/* Link back to Signup */}
         <p className="mt-10 text-center text-sm text-slate-500">
           Already have an account?{' '}
-          <a href="/auth/login" className="font-bold text-indigo-600 hover:text-indigo-500 transition-colors">
+          <Link href="/auth/login" className="font-bold text-indigo-600 hover:text-indigo-500 transition-colors">
             Sign-in
-          </a>
+          </Link>
         </p>
       </div>
     </div>
